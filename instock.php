@@ -1,5 +1,7 @@
 <?php
-if(isset($_COOKIE["user_id"])==false){
+if(isset($_COOKIE["login_true"])==false){
+        session_start();
+        $_SESSION["last_url"]="instock.php";
 	$url = "login.php";
 	echo "<script language='javascript' type='text/javascript'>";
 	echo "window.location.href='$url'";
@@ -24,7 +26,8 @@ if(isset($_COOKIE["user_id"])==false){
 <script src="tpl/vendors/modernizr-2.6.2-respond-1.1.0.min.js"></script>
 <script type="text/javascript" src="tpl/vendors/jquery-1.9.1.min.js"></script>
 <script src="tpl/bootstrap/js/bootstrap.min.js"></script>
-<script src="common.js"></script>
+<script language="javascript" type="text/javascript" src="My97DatePicker/WdatePicker.js"></script>
+<script src="common.js?r=20180626"></script>
 
 <title>新增入库</title>
 <style type="text/css">
@@ -32,6 +35,7 @@ if(isset($_COOKIE["user_id"])==false){
   width: 100%;height:100%;
 }
 #list_tb1 th {text-align:center;}
+#table_b th {text-align:center;}
 	 td {padding:5px;}
 	 .tb1 {border:2px solid;border-spacing:0px; }
 	 .tb1 th {margin:3px;padding:5px;border:1px gray solid;}
@@ -42,39 +46,8 @@ if(isset($_COOKIE["user_id"])==false){
 
 var  active_index=0;
 
-function accDiv(arg1,arg2){
-    var t1 = 0,t2 = 0,r1,r2;
-    try{t1 = arg1.toString().split('.')[1].length}catch(e){}
-    try{t2 = arg2.toString().split('.')[1].length}catch(e){}
-    with(Math){
-        r1 = Number(arg1.toString().replace('.',''));
-        r2 = Number(arg2.toString().replace('.',''));
-        return (r1 / r2) * pow(10,t2 - t1);
-    }
-}
-function accMul(arg1,arg2)
-{
-    var m = 0,s1 = arg1.toString(),s2 = arg2.toString();
-    try{m += s1.split('.')[1].length}catch(e){}
-    try{m += s2.split('.')[1].length}catch(e){}
-    return Number(s1.replace('.',''))*Number(s2.replace('.','')) / Math.pow(10,m);
-}
-function accAdd(arg1,arg2){
-    var r1,r2,m;
-    try{r1 = arg1.toString().split('.')[1].length}catch(e){r1 = 0}
-    try{r2 = arg2.toString().split('.')[1].length}catch(e){r2 = 0}
-    m = Math.pow(10,Math.max(r1,r2));
-    return (arg1 * m + arg2 * m) / m;
-}
-function accSub(arg1,arg2){
-    var r1,r2,m,n;
-    try{r1 = arg1.toString().split('.')[1].length}catch(e){r1 = 0}
-    try{r2 = arg2.toString().split('.')[1].length}catch(e){r2 = 0}
-    m = Math.pow(10,Math.max(r1,r2));
-    //动态控制精度长度
-    n = (r1 >= r2) ? r1 : r2;
-    return ((arg2 * m - arg1 * m) / m).toFixed(n);
-}
+
+
 
 
 function unbind_name_gg(){
@@ -92,9 +65,10 @@ function bind_name_gg(){
 				$('#oLayer').css('top',top+40);
 				$('#oLayer').show();
 				$.get('product_action.php',
-				{action:'list_pro_for_instock',r:Math.random(),filter1:key},
+				{action:'list_pro_for_instock_1',r:Math.random(),filter1:key,page_name:'instock.php'},
 					function(data){
 						 $('#oLayer_content').html(data);
+						 hidemeC();
 					});
 				
 			} else {
@@ -158,7 +132,8 @@ function bind_change(){
 	}
 	
 	function get_instock(batch_id){
-		$.getJSON('instock_action.php',{action:'get_instock',batch_id:batch_id,r:Math.random()},
+                clear_info();
+		$.getJSON('instock_action.php',{action:'get_instock',batch_id:batch_id,r:Math.random(),page_name:'instock.php'},
 			function(data){			
 				$('#edit_batch_id').val(data.in_batch_id);
 				$('#money_hj').val(data.total_money);
@@ -171,7 +146,7 @@ function bind_change(){
 				}				
 				$('#company_name').val(data.in_company);			
 				$('#remark_t').val(data.remark);
-				$.getJSON('instock_action.php',{action:'get_instock_detail',batch_id:batch_id,r:Math.random()},
+				$.getJSON('instock_action.php',{action:'get_instock_detail',batch_id:batch_id,r:Math.random(),page_name:'instock.php'},
 						function(data){	
 							var pro_id_list = $('input[name=hid_pro_id]');
 							var name_gg_list = $('input[name=name_gg]');
@@ -187,6 +162,15 @@ function bind_change(){
 								add_line();
 								row_length = $('input[name=hid_pro_id]').length;
 							}
+							pro_id_list = $('input[name=hid_pro_id]');
+							name_gg_list = $('input[name=name_gg]');
+							p_model_list = $('input[name=p_model]');
+							p_made_list = $('input[name=p_made]');
+							unit_list = $('input[name=unit]');
+							quantity_list = $('input[name=quantity]');
+							price_list = $('input[name=price]');
+							money_list = $('input[name=money]');
+							remark_list = $('input[name=remark]');
 							for(var i=0;i<data.length;i++){
 								var row = data[i];
 								$(pro_id_list[i]).val(row.product_id);
@@ -203,6 +187,8 @@ function bind_change(){
 			});
 		$('#add_div').show();
 		$('#list_div').hide();
+		$('#btn_add_big_stock').show();
+            
 			
 	}
 	
@@ -296,6 +282,7 @@ function bind_change(){
 			remark:remark_s,
 			hj:hj,
 			remark_t:remark_t,
+                        page_name:'instock.php',
 			r:Math.random()
 		},function(data){
 			if(data=='success'){				
@@ -324,17 +311,19 @@ function bind_change(){
 		$('#add_div').show();
 		$('#list_div').hide();
 		clear_info();
+		$('#btn_add_big_stock').hide();
 	}
 	
-	function ret(){
-		$('#add_div').hide();
+	function ret(){                
+        clear_info();	
+        $('#add_div').hide();
 		$('#list_div').show();
-		clear_info();
+		
 	}
 	
 	function selectone(product_id){
 		$.getJSON('product_action.php',
-		{r:Math.random(),action:'get_pro',pro_id:product_id} ,
+		{r:Math.random(),action:'get_pro',pro_id:product_id,page_name:'instock.php'} ,
 			function(data){
 			var str = data.product_name;
 			if(data.product_model!=''){
@@ -347,11 +336,17 @@ function bind_change(){
 			$('input[name=hid_pro_id]').eq(active_index).val(product_id);
 			 $('input[name=p_model]').eq(active_index).val(data.product_model);
 			 $('input[name=p_made]').eq(active_index).val(data.product_made);
-			 $.getJSON('stock_action.php',
-			 {r:Math.random(),action:'get_stock',product_id:product_id},
+		/*	 $.getJSON('stock_action.php',
+			 {r:Math.random(),action:'get_stock',product_id:product_id,page_name:'instock.php'},
 			 	 function(stock_data){
 			 	 	 $('input[name=unit]').eq(active_index).val(stock_data.stock_unit);
-			 	 });
+			 	 });*/
+			 	    $.getJSON('instock_action.php',
+                                    {r: Math.random(),product_id: product_id,action:'get_last_price_by_product_id',page_name:'instock.php'},
+                                    function (stock_data) {
+                                        $('input[name=unit]').eq(active_index).val(stock_data.unit);
+                                        $('input[name=price]').eq(active_index).val(stock_data.in_price);
+                                    });
 			hideme();
 		});
 	}
@@ -365,6 +360,7 @@ function bind_change(){
 		var price_list = $('input[name=price]');
 		var money_list = $('input[name=money]');
 		var remark_list = $('input[name=remark]');
+		var span_big_list =  $('span[name=hid_big]');
 	
 		for(var i=0;i<name_gg_list.length;i++){
 			$(name_gg_list[i]).val('');
@@ -373,12 +369,14 @@ function bind_change(){
 			$(price_list[i]).val('');
 			$(money_list[i]).val('');
 			$(remark_list[i]).val('');
+			$(span_big_list[i]).html('');
 		}
 		$('#money_hj').val('');
 		$('#remark_t').val('');
 	}
 
 	function list(page_id){
+	      hidemeC();
 		 var client_name = $('#client_name').val();
 		 var filter = $('#filter').val();
 		 var start_time = $('#start_time').val();
@@ -391,7 +389,8 @@ function bind_change(){
 			client_name:client_name,
 			filter:filter,
 			start_time:start_time,
-			end_time:end_time		 
+			end_time:end_time,	
+                        page_name:'instock.php'	 
 			},
 			function(data){				
 				$('#list_div_tbl').html(data);
@@ -408,7 +407,7 @@ function bind_change(){
 		if($('#detail_'+batch_id).length>0){
 
 		} else {
-	$.get('instock_action.php?action=show_detail',{r:Math.random(),batch_id:batch_id},function(data){
+	$.get('instock_action.php?action=show_detail',{r:Math.random(),batch_id:batch_id,page_name:'instock.php'},function(data){
 			var new_data = '<tr><td colspan="7">'+data+'</td></tr>';
 			$(new_data).insertAfter($(ele).parent().parent());
 		});
@@ -424,7 +423,7 @@ function bind_change(){
 	
 
 
-	function list_sales(){
+	function list_instock(){
 	 	$('#list_div').show();
 		$('#add_div').hide();
 	 	list(1);	
@@ -433,7 +432,7 @@ function bind_change(){
 	 function del_sales(batch_id){
 		 if(confirm('确认要删除吗？')){
  			$.get('instock_action.php?action=del_instock',
-		 	{r:Math.random(),batch_id:batch_id},
+		 	{r:Math.random(),batch_id:batch_id,page_name:'instock.php'},
 		 	function(data){
 				 if(data=='success'){
 					go_page(last_page_id);
@@ -443,44 +442,288 @@ function bind_change(){
 		 }
 		
 	 }
+         
+         function selectCompany(company_name){
+            $('#company_name').val(company_name);
+            $('#oLayerC').hide();
+        }
+        
+        function hidemeC(){
+        	  $('#oLayerC').hide(); 
+        }
+		function hidemeB(){
+			$('#oLayerB').hide(); 
+		}
+        var last_company = '';
+        function show_company(){
+    		var company = $('#company_name').val().trim();
+    		if(company==last_company){
+    			return;
+    		}
+    		last_company = company;
+    		if(company==''){
+        		$('#oLayerC').hide();        
+    		} else {
+        		var top = $('#company_name').offset().top;
+        		var left = $('#company_name').offset().left;
+        		$('#oLayerC').css('left',left+40);
+        		$('#oLayerC').css('top',top+40);
+        		$('#oLayerC').show();
+        		$.get('instock_action.php',
+                	{action:'list_company',r:Math.random(),filter1:company,page_name:'instock.php'},
+                        function(data){
+                            if(data==''){
+                                $('#oLayerC').hide();
+                            } else {
+                                $('#oLayer_contentC').html(data);
+                            }
+                        });
+        
+    		}    
+		}
+
+		
+
+function add_big_stock(){
+	var name_gg_list = $('input[name=name_gg]');
+	var pro_id_list =  $('input[name=hid_pro_id]');
+	var span_big_list =  $('span[name=hid_big]');
+	for(var i=0;i<name_gg_list.length;i++){
+		var name_gg = $(name_gg_list[i]).val();
+		if(name_gg!=''){							
+			let batch_id = $('#edit_batch_id').val();
+			let pro_id = $(pro_id_list[i]).val();
+			let index = i;
+			$.get('instock_action.php',
+				{action:'count_by_batch_id_and_product_id',
+				r:Math.random(),
+				product_id:pro_id,
+				batch_id:batch_id,
+				page_name:'instock.php'},
+				function(data){
+					
+					if(data=='0'){
+						let html = '<input type="button" value="添加" onclick="show_big_layer('+
+						pro_id+',1)"/>';
+						$(span_big_list[index]).html(html);
+						
+					} else if(data!='0'){
+						let html = '<input type="button" value="编辑" onclick="show_big_layer('+
+						pro_id+',2)"/>';
+						$(span_big_list[index]).html(html);
+						
+					}
+				}			
+			);
+		}
+
+	}
+}
+
+
+
+function show_big_layer(product_id,big_stock_mode){
+	
+	clear_flag();
+	if(big_stock_mode =='1'){
+		b_del_all_line_except_firt_line();
+		$.getJSON('product_action.php?action=get_pro',
+		{r:Math.random(),page_name:'instock.php',pro_id:product_id},
+			function(data){
+				console.log(data);
+				var top = 50;
+				var left = 0;
+				$('#oLayerB').css('left',left+40);
+				$('#oLayerB').css('top',top+40);
+				$('#oLayerB').show();
+
+				$('input[name=hid_b_pro_id]').eq(0).val(product_id);
+				var str = data.product_name;
+				if(data.product_model!=''){
+					str += ' '+data.product_model;
+				}
+				if(data.product_made!=''){
+					str +=  ' ' +data.product_made;
+				}
+				$('input[name=b_name_gg]').eq(0).val(str);
+				$('span[name=b_instock_batch_no]').eq(0).html($('#edit_batch_id').val());			
+				
+
+			}
+		);
+	} else if(big_stock_mode=='2'){
+		 $.getJSON('instock_action.php?action=get_big_stock_full',
+		 {
+		 	r:Math.random(),
+		 	product_id:product_id,
+		  instock_batch_id: $('#edit_batch_id').val(),
+		  page_name:'instock.php',
+		 },function(data){
+				console.log(data);
+				console.log(data.length);
+				remove_to_leave_one_row();
+				for(let index = 1;index<data.length;index++){
+					b_add_line(null);
+				}
+				var str = data[0].product_name;
+				if(data[0].product_model!=''){
+					str += ' '+data[0].product_model;
+				}
+				if(data[0].product_made!=''){
+					str +=  ' ' +data[0].product_made;
+				}
+				for(var index = 0;index<data.length;index++){
+					$('input[name=b_id]').eq(index).val(data[index].id);
+					console.log(data[index].id);
+					$('input[name=b_name_gg]').eq(index).val(str);
+					console.log(str);
+					$('input[name=hid_b_pro_id]').eq(index).val(data[index].product_id);
+					console.log(data[index].product_id);
+					$('input[name=b_quantity]').eq(index).val(data[index].quantity);
+					console.log(data[index].quantity);
+					$('input[name=b_unit]').eq(index).val(data[index].unit);
+					console.log(data[index].unit);
+					$('input[name=b_save_location]').eq(index).val(data[index].stock_position);
+					console.log(data[index].stock_position);
+					$('input[name=b_state]').eq(index).val(data[index].product_state);
+					console.log(data[index].product_state);					
+					$('span[name=b_instock_batch_no]').eq(index).html(data[index].instock_batch_id);
+					console.log(data[index].instock_batch_id);		
+					$('span[name=b_add_date]').eq(index).html(data[index].add_date_str);
+					console.log(data[index].add_date_str);
+					$('span[name=b_update_date]').eq(index).html(data[index].update_date_str);	
+					console.log(data[index].update_date_str);
+					$('span[name=b_no]').eq(index).html(data[index].b_no);	
+
+
+				}
+				var top = 50;
+				var left = 0;
+				$('#oLayerB').css('left',left+40);
+				$('#oLayerB').css('top',top+40);
+				$('#oLayerB').show();
+
+
+		 });
+
+
+	}
+	
+	
+	
+
+}
+
+function remove_to_leave_one_row(){
+	while($('#table_b').find('tbody').find('tr').length>2){
+		$('#table_b').find('tbody').find('tr').eq(1).remove();
+	}
+}
+
+
+function b_add_line(ele){
+	//let index = $('input[name=btn_b_add_line]').index(ele);
+	
+	var len = $('#table_b').find('tbody').find('tr').length;
+	var html = $('#table_b').find('tbody').find('tr').html();
+	$('#table_b').find('tbody').find('tr').eq(len-2).after('<tr>'+html+'</tr>');
+	
+	var product_id = $('input[name=hid_b_pro_id]').eq(0).val();
+	var b_name_gg = $('input[name=b_name_gg]').eq(0).val();
+	var b_instock_batch_no = $('span[name=b_instock_batch_no]').eq(0).html();
+
+	$('#table_b').find('tbody').find('tr').eq(len-1).find('input[name=hid_b_pro_id]').eq(0).val(product_id);
+	console.log('product_id:'+product_id);
+
+	$('#table_b').find('tbody').find('tr').eq(len-1).find('input[name=b_name_gg]').eq(0).val(b_name_gg);
+	console.log('b_name_gg:'+b_name_gg);
+	$('#table_b').find('tbody').find('tr').eq(len-1).find('span[name=b_instock_batch_no]').eq(0).html(b_instock_batch_no);
+	console.log('b_instock_batch_no:'+b_instock_batch_no);
+
+}
+
+function b_del_all_line_except_firt_line(){
+	var len = $('#table_b').find('tbody').find('tr').length;
+	while(len>2){
+		$('#table_b').find('tbody').find('tr').eq(1).remove();
+		len = $('#table_b').find('tbody').find('tr').length;
+	}
+}
+
+function b_del_line(ele){
+	let index = $('input[name=btn_b_del_line]').index(ele);
+	if(index>0){
+		$('#table_b').find('tbody').find('tr').eq(index).remove();
+	}
+}
+
+function b_save(){
+	var array_b_id = $('input[name=b_id]');
+	var array_b_name_gg = $('input[name=b_name_gg]');
+	var array_hid_b_pro_id = $('input[name=hid_b_pro_id]');
+	var array_b_quantity = $('input[name=b_quantity]');
+	var array_b_unit = $('input[name=b_unit]');
+	var array_b_save_location = $('select[name=b_save_location]');
+	var array_b_state = $('select[name=b_state]');
+	var array_b_instock_batch_no = $('span[name=b_instock_batch_no]');
+	for(let i=0;i<array_b_id.length;i++){
+		let b_id = $(array_b_id[i]).val();
+		let pro_id = $(array_hid_b_pro_id[i]).val();
+		let b_quantity = $(array_b_quantity[i]).val();
+		let b_unit = $(array_b_unit[i]).val();
+		let b_save_location = $(array_b_save_location[i]).val();
+		let b_state = $(array_b_state[i]).val();
+		console.log("b_id:"+b_id);
+		console.log("pro_id:"+pro_id);
+		console.log("b_quantity:"+b_quantity);
+		console.log("b_unit:"+b_unit);
+		console.log("b_save_location:"+b_save_location);
+		console.log("b_state:"+b_state);
+		$.post('instock_action.php?action=save_big',{
+			b_id:b_id,
+			pro_id:pro_id,
+			b_quantity:b_quantity,
+			b_unit:b_unit,
+			b_save_location:b_save_location,
+			b_state:b_state,
+			r:Math.random(),
+			page_name:'instock.php',
+			batch_id:$('#edit_batch_id').val()
+		},function(data){
+			$('span[name=op_state]').eq(i).html(data);
+		}		
+		);
+
+
+	}
+
+}
+
+function clear_flag(){
+	var array_b_quantity = $('span[name=op_state]');
+	for(let i=0;i<array_b_quantity.length;i++){
+		$(array_b_quantity[i]).html('');
+	}
+}
 	
 </script>
 </head>
 <body>
-	<div id='wrapper'>
-	<div class="navbar navbar-fixed-top">
-            <div class="navbar-inner">
-                <div class="container-fluid">
-                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> <span class="icon-bar"></span>
-                     <span class="icon-bar"></span>
-                     <span class="icon-bar"></span>
-                    </a>
-                    <a class="brand" href='javascript:void(0)' onclick='fill_tag("")'>Admin Panel</a>
-                 <ul class="nav">
-                        
-                    	<li class="active" id='id1'>
-        			 <a href='javascript:void(0)' onclick='add_init()'>新增入库</a>
-        			</li>
-        			<li id='id2'>
-        			 <a href='javascript:void(0)' onclick='list_sales()'>入库列表</a>
-        			</li>
-        			<li id='id3'>
-        				 <a href='product.php' target='_blank'>商品列表</a>	
-                            </li>
-                            	<li id='id4'>
-        				 <a href='sales.php' target='_blank'>新增销售</a>	
-                            </li>
-                            	<li id='id5'>
-        			 <a href='stock.php' target='_blank'>库存列表</a>
-        			</li>
-						<li id='id7'>
-        			 <a href='javascript:void(0)' onclick="changepswd()">修改密码</a>
-        			</li>
-						<li id='id6'>
-        			 <a href='javascript:void(0)' onclick="logout()">注销</a>
-        			</li>
-                        </ul>
-                    </div>		 
+	 <div id='wrapper' style="position:absolute;left:0px;top:0px;">
+            <div class="navbar" id='top_div'>
+                <div class="navbar-inner">
+                  <?php include("top_div1.php") ?>                             
+                
+                  <div style="position:inline; float: right;">
+                            <ul class="nav">  
+                                <li>
+                                    <a href='javascript:void(0)' onclick='add_init()'>新增入库</a>
+                                </li>
+                                <li>
+                                    <a href='javascript:void(0)' onclick='list_instock()'>入库列表</a>
+                                </li>
+                            </ul>
+                        </div>	 
 	  
 		</div>
 		</div>
@@ -491,7 +734,7 @@ function bind_change(){
 	<thead>
 		<tr>
 			<td colspan='3' style='text-align:left;'>
-					单位名称：<input type='text' name='company_name' id='company_name'  style='width:350px'   />
+					供应商：<input type='text' name='company_name' id='company_name'  style='width:350px' onkeyup="show_company()"  />
 			</td>
 			<td colspan='3' style='text-align:right;'>
 					日期：<input type='text' name='yy' id='yy' style='width:40px' value='<?php echo date("Y")?>'  /> 年 
@@ -507,9 +750,11 @@ function bind_change(){
 		 <tbody>
 		<tr>
 		 	<td>
-			<input type='text' name='name_gg'  style='width:150px'   /> <input type='hidden' name='hid_pro_id' />
-		 <input type='hidden' name='p_model' />
-		 <input type='hidden' name='p_made' />
+			<input type='text' name='name_gg'  style='width:150px'   /> 
+			<input type='hidden' name='hid_pro_id' />
+		 	<input type='hidden' name='p_model' />
+		 	<input type='hidden' name='p_made' />
+
 			</td>
 			<td>	<input type='text' name='unit'  style='width:60px'   /></td>
 			<td style='text-align:right'>	<input type='text' name='quantity'  style='width:60px'   /></td>
@@ -517,11 +762,13 @@ function bind_change(){
 			<td style='text-align:right'>	<input type='text' name='money'  style='width:100px'   /></td>
 			<td>
 			<input type='text' name='remark'  style='width:150px'   />
+			<span name='hid_big'></span>
 			</td>
 		</tr>
 			<tr>
 		 	<td>
-			<input type='text' name='name_gg'  style='width:150px'   /><input type='hidden' name='hid_pro_id' />
+			<input type='text' name='name_gg'  style='width:150px'   />
+			<input type='hidden' name='hid_pro_id' />
 			 <input type='hidden' name='p_model' />
 		 <input type='hidden' name='p_made' />
 			</td>
@@ -531,11 +778,13 @@ function bind_change(){
 			<td style='text-align:right'>	<input type='text' name='money'  style='width:100px'   /></td>
 			<td>
 			<input type='text' name='remark'  style='width:150px'   />
+			<span name='hid_big'></span>
 			</td>
 		</tr>
 			<tr>
 		 	<td>
-			<input type='text' name='name_gg'  style='width:150px'   /><input type='hidden' name='hid_pro_id' />
+			<input type='text' name='name_gg'  style='width:150px'   />
+			<input type='hidden' name='hid_pro_id' />
 			 <input type='hidden' name='p_model' />
 		 <input type='hidden' name='p_made' />
 			</td>
@@ -545,11 +794,13 @@ function bind_change(){
 			<td style='text-align:right'>	<input type='text' name='money'  style='width:100px'   /></td>
 			<td>
 			<input type='text' name='remark'  style='width:150px'   />
+			<span name='hid_big'></span>
 			</td>
 		</tr>
 			<tr>
 		 	<td>
-			<input type='text' name='name_gg'  style='width:150px'   /><input type='hidden' name='hid_pro_id' />
+			<input type='text' name='name_gg'  style='width:150px'   />
+			<input type='hidden' name='hid_pro_id' />
 			 <input type='hidden' name='p_model' />
 		 <input type='hidden' name='p_made' />
 			</td>
@@ -559,11 +810,13 @@ function bind_change(){
 			<td style='text-align:right'>	<input type='text' name='money'  style='width:100px'   /></td>
 			<td>
 			<input type='text' name='remark'  style='width:150px'   />
+			<span name='hid_big'></span>
 			</td>
 		</tr>
 			<tr>
 		 	<td>
-			<input type='text' name='name_gg'  style='width:150px'   /><input type='hidden' name='hid_pro_id' />
+			<input type='text' name='name_gg'  style='width:150px'   />
+			<input type='hidden' name='hid_pro_id' />
 			 <input type='hidden' name='p_model' />
 		 <input type='hidden' name='p_made' />
 			</td>
@@ -573,6 +826,7 @@ function bind_change(){
 			<td style='text-align:right'>	<input type='text' name='money'  style='width:100px'   /></td>
 			<td>
 			<input type='text' name='remark'  style='width:150px'   />
+			<span name='hid_big'></span>
 			</td>
 		</tr>
 		<tr>
@@ -595,6 +849,11 @@ function bind_change(){
 	<input type='button' value='保存并跳转至列表' onclick='save_instock()'/>
 		<input type='button' value='返回' onclick='ret()'/>
 
+		&nbsp;&nbsp;&nbsp;&nbsp;
+		&nbsp;&nbsp;
+		&nbsp;&nbsp;
+			<input type='button' value='添加大件库存' onclick='add_big_stock()' id='btn_add_big_stock' style='display:none;'/>
+
 
 	                </div>
 
@@ -603,11 +862,11 @@ function bind_change(){
 <table id='search_tbl'  class='table table-bordered table-striped table-hover'>
 	<tr><td>
 
-		单位名称：<input id='client_name' name='client_name' style='width:250px;' />
+		供应商：<input id='client_name' name='client_name' style='width:250px;' />
 		筛选：<input id='filter' name='filter' style='width:150px;' />
-		开始时间：<input id='start_time' name='start_time' style='width:80px;' />
-		结束时间：<input id='end_time' name='end_time' style='width:80px;' />
-		<input type='button' value='搜索' onclick='list_sales(1)' />
+		开始时间：<input id='start_time' name='start_time' style='width:100px;' class='Wdate' onClick='WdatePicker()' />
+		结束时间：<input id='end_time' name='end_time' style='width:100px;' class='Wdate' onClick='WdatePicker()' />
+		<input type='button' value='搜索' onclick='list_instock()' />
 
 </td></tr></table>
 
@@ -634,26 +893,108 @@ function bind_change(){
                 	       <input type='button' value='x' onclick='hideme()' />
                 	</div>
 			</div>
+    
+      <div id="oLayerC" style="position: absolute; left: 0; top:80px; z-index: 2; background: #e6e6e6; margin-left:6px;
+            width: 800px; display:none;">
+                <div id='oLayer_contentC'>
+                
+                </div>
+                
+                <div style='float:right;'>
+                	       <input type='button' value='x' onclick='hidemeC()' />
+                	</div>
+			</div>
+
+			<div id="oLayerB" style="position: absolute; left: 0; top:80px; z-index: 2; background: #e6e6e6; margin-left:6px;
+            width: 1100px; display:none;">
+                <div id='oLayer_contentB'>
+					<table id='table_b' class='table table-bordered table-striped table-hover'>
+						<thead>
+							<tr>
+							<th>编号</th>
+							<th>名称及规格</th>							
+							<th>数量</th>
+							<th>单位</th>
+							<th>存放位置</th>
+							<th>状态</th>
+							<th>入库编号</th>
+							<th>库存编号</th>
+							<th>添加日期</th>
+							<th>更新日期</th>
+							<th>操作</th>
+							</tr>
+						</thead>
+						<tbody>
+						<tr>
+							<td>
+							<input type='text' name='b_id' style='width:60px;' />
+							</td>
+							<td>
+							
+							<input type='text' name='b_name_gg'  style='width:150px'   />
+							<input type='hidden' name='hid_b_pro_id' />
+							</td>							
+							<td>
+							<input type='text' name='b_quantity'  style='width:60px'   />							  
+							</td>
+							<td>
+							<input type='text' name='b_unit'  style='width:60px'   />
+							</td>
+							<td>
+							<select name='b_save_location' style='width:80px' >
+								<option value='1'>店内</option>
+								<option value='2'>包家仓库</option>
+								<option value='3'>舜北仓库</option>
+							</select>
+							</td>
+							<td>
+							<select name='b_state' style='width:80px' >
+								<option value='1'>在库</option>
+								<option value='2'>部分售出</option>
+								<option value='3'>售出</option>
+							</select>
+							</td>
+							<td>							
+							<span name='b_instock_batch_no'></span>
+							</td>
+							<td>							
+							<span name='b_no'></span>
+							</td>
+							<td>
+							<span name='b_add_date'></span>
+							</td>
+							<td>
+							<span name='b_update_date'></span>
+							</td>
+							<td>
+							<input type='button' value='+' name='btn_b_add_line' onclick='b_add_line(this)' />
+							<input type='button' value='-' name='btn_b_del_line' onclick='b_del_line(this)' />
+							<span name='op_state'>
+
+							</span>
+							</td>
+							</tr>
+							
+							<tr>
+							<td colspan='9'>
+							<input type='button' value='保存' name='btn_b_save' onclick='b_save()' />
+							</td>
+							<td></td>
+							</tr>
+							
+						</tbody>						
+					</table>
+                </div>
+                
+                <div style='float:right;'>
+                	       <input type='button' value='x' onclick='hidemeB()' />
+                	</div>
+			</div>
 					
-						<div id='change_pswd_div' 
-	style='z-index:99;background-color:white;position:fixed;width:250px;height:250px;left:200px;top:200px;
-	padding-left:50px;padding-right:50px;padding-top:15px;padding-bottom:15px;display:none;'>
+						<?php
+	require_once ( 'change_password.php');
 		
-		<div style='text-align:right;'>
-		<input type='button' value='x' onclick='close_change_pswd_div()' />
-		</div>
-
-		原密码：<input type='password' id='ori_passwd' /><br />
-		
-		新密码：<input type='password' id='new_passwd' /><br />
-		
-		确认新密码：<input type='password' id='re_new_passwd' /><br />
-
-		<input type='button' value='确认' onclick='change_passwd_click()' />
-        <br />
-        	<span id='change_password_success_span' style='color:green;'></span>
-
-	</div>
+		?>
 </body>
 </html>
 

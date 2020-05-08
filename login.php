@@ -1,13 +1,22 @@
 <?php
 
- if(isset($_COOKIE["user_id"])==true){
-	$url = "product.php";
-	echo "<script language='javascript' type='text/javascript'>";
-	echo "window.location.href='$url'";
-	echo "</script>";
-	return;
-}                                                    	 
-                                                     	 
+$url = "product.php";
+session_start();
+if(isset($_SESSION["last_url"])){
+    $url = $_SESSION["last_url"];
+}	
+
+ if(isset($_COOKIE["login_true"])==true){     
+    echo "<script language='javascript' type='text/javascript'>";
+    echo "window.location.href='$url'";
+    echo "</script>";
+    return;
+} else {
+    echo "<script language='javascript' type='text/javascript'>";
+    echo "var go_url='$url'";
+    echo "</script>";
+}
+
 ?><!DOCTYPE html>
 <html lang="zh-cn">
 <head>
@@ -58,7 +67,7 @@
 		var id = $('#uid').val();
 		var pwd = $('#upwd').val();
 		rememberme = '1';
-		if($('#urememberme').attr("checked")){
+		if($('#urememberme').is(":checked")){
 			rememberme = '1';
 		} else {
 			rememberme = '0';
@@ -66,8 +75,8 @@
 		$.post('login_action.php?action=login',
 		{r:Math.random(),uid:id,upwd:pwd,rememberme:rememberme},
 			function(data){
-				if(data=='success'){
-					location.href='product.php';
+				if(data=='success'){                                    
+					location.href=go_url;
 				} else {
 					alert(data);
 				}
@@ -98,8 +107,26 @@
     </div> <!-- /container -->
     <script src="tpl/vendors/jquery-1.9.1.min.js"></script>
     <script src="tpl/bootstrap/js/bootstrap.min.js"></script>
-
-	
+<?php 
+	if(isset($_COOKIE["rememberme"])==true){
+		if($_COOKIE["rememberme"]=="1"){
+			$uid=$_COOKIE['user_id'];
+			$pwd = $_COOKIE['passwd'];
+			echo "<script language='javascript' type='text/javascript'>";
+			echo "$('#uid').val('".$uid."');";
+			echo "$('#upwd').val('".$pwd."');";
+			echo "$('#urememberme').attr('checked','true');";
+			echo "</script>";
+			
+		} else {
+			echo "<script language='javascript' type='text/javascript'>";
+			echo "</script>";
+		}
+	} else {
+			echo "<script language='javascript' type='text/javascript'>";
+			echo "</script>";
+	}
+?>
 </body>
 </html>
 
