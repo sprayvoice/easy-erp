@@ -60,9 +60,9 @@ function load_sql_file($path, $fn_splitor = ';;') {
     return $arr;
 }
 
-    require_once ( 'mysql.class.php');
+require_once ( 'db/mysqli.class.php');
     $action = $_GET['action'];
-      if($action=='save_db_conf'){
+if($action=='save_db_conf'){
  	 $db_addr = $_POST['db_addr'];
  	 $db_name = $_POST['db_name'];	
  	 $user_id = $_POST['user_id'];
@@ -84,12 +84,18 @@ function load_sql_file($path, $fn_splitor = ';;') {
  	 }
  	 file_put_contents('data/config.php',$content);
  	 
- 	 set_error_handler("warning_handler", E_WARNING);
+	  set_error_handler("warning_handler", E_WARNING);	 
+	  
+	  
  	 
- 	 $link1 = mysql_pconnect($db_addr, $user_id, $passwd);
+	  $link1 = mysqli_connect($db_addr, $user_id, $passwd);
+
+	
  	 
  	 if($link1){
- 	 	if (!mysql_select_db($db_name, $link1)) {
+
+	
+ 	 	if (!mysqli_select_db($link1,$db_name)) {
  	 		echo "no_db";
         	}  else {
         	 	echo "success";
@@ -107,10 +113,10 @@ function load_sql_file($path, $fn_splitor = ';;') {
  	 	$db_name = $_POST['db_name'];	
  	 	$user_id = $_POST['user_id'];
  	 	$passwd = $_POST['passwd'];
- 	 	$sql = "create database `".$db_name."` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci";
- 	 	$link1 = mysql_pconnect($db_addr, $user_id, $passwd);
+ 	 	$sql = "create database `".$db_name."` DEFAULT CHARACTER SET utf8mb4";
+ 	 	$link1 = mysqli_connect($db_addr, $user_id, $passwd);
  	 	if($link1){
- 	 		$result = mysql_query($sql, $link1);
+ 	 		$result = mysqli_query( $link1,$sql);
  	 		if($result){
  	 			echo "success";
  	 		} else {
@@ -120,7 +126,7 @@ function load_sql_file($path, $fn_splitor = ';;') {
          } else if($action=='create_table'){
          	 require_once ( 'data/config.php');
          	 $arr = load_sql_file('data/create_table.sql');
-         	 $db = new mysql($dbhost,$dbuser,$dbpass,$dbname,"pconn","utf8");
+         	 $db = new mysql_db($dbhost,$dbuser,$dbpass,$dbname,"pconn","utf8");
          	 if($db ){
          	 	 $isError = false;
          	    foreach ($arr as $line) {
@@ -144,6 +150,18 @@ function load_sql_file($path, $fn_splitor = ';;') {
          	}
          	 
          	 
-         }
+         } else if($action=='create_admin_user'){
+			$db = new mysql_db($dbhost,$dbuser,$dbpass,$dbname,"pconn","utf8");
+			$admin_userid = $_POST['user_id'];
+			$admin_passwd = $_POST['passwd'];
+			require_once('data/db_login.class.php');
+			$cls_login = new db_login($db);
+			$result = $cls_login->create_user_and_pwd($admin_userid,$admin_passwd);
+			if($result){
+				echo "success";
+			} else {
+				echo "创建用户失败";
+			}
+		 }
       
 ?>

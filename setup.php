@@ -110,7 +110,7 @@
     			if(data=='success'){
     				$('#div1').hide();
     				create_table();
-    				create_admin_user();
+    				
     			} else if(data=='no_db'){
     			 	$('#div1').hide();
     			 	$('#div2').show();
@@ -125,7 +125,8 @@
     	var para = {r:Math.random()};
     	$.get(url,para,function(data){
     		if(data=='success'){
-    			$('#div3').show();
+				create_admin_user();
+    			
     		} else {
     			$('#div3').html(data);
     			$('#div3').show();
@@ -142,7 +143,7 @@
     	 var para  = {r:Math.random(),user_id:admin_user_id,passwd:admin_passwd};
     	 $.post(url,para,function(data){
     	 	 if(data=='success'){
-    	 	 	 
+				$('#div3').show();
     	 	 } else {
     	 	 	alert(data);
     	 	 }

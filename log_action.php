@@ -19,13 +19,13 @@ function strsToArray($strs) {
 }
 
 require_once ( 'data/config.php');
-require_once ( 'db/mysql.class.php');
+require_once ( 'db/mysqli.class.php');
 require_once ( 'db/db_log2.class.php');
 require_once ('Pager.php');
 
 require_once ( 'filter.php');
 
-$db = new mysql($dbhost, $dbuser, $dbpass, $dbname, "pconn", "utf8");
+$db = new mysql_db($dbhost, $dbuser, $dbpass, $dbname, "pconn", "utf8");
 $cls_log = new db_log2($db);
 $action = $_GET['action'];
 if ($action == 'del_batch') {

@@ -76,7 +76,8 @@ class db_big_product_stock {
         if($stock_state!='0' && $stock_state!=''){
             $where .= " and a.product_state='".$stock_state."' ";
         }        
-        $sql_c = "select count(*) c from ying_big_product_stock a inner join ying_product b on a.product_id = b.product_id"
+        $sql_c = "select count(*) c from " . constant("TABLE_PREFIX") . "big_product_stock a inner join " . constant("TABLE_PREFIX") 
+        . "product b on a.product_id = b.product_id"
             .$where;
         $result = $this->db->query($sql_c);
         if($result!=false){
@@ -89,7 +90,8 @@ class db_big_product_stock {
     public function get_by_id($id){
         $sql = "select a.id,a.product_state,a.stock_position,a.quantity,a.unit,a.instock_batch_id,"
         ." b.product_id,b.product_name,b.product_model,b.product_made,b.product_tags  "
-        ." from ying_big_product_stock a inner join ying_product b  "
+        ." from " . constant("TABLE_PREFIX") . "big_product_stock a inner join " . constant("TABLE_PREFIX") 
+        . "product b  "
         ." on a.product_id = b.product_id  "
         . " where a.id=".$id;
         $result = $this->db->query($sql);
@@ -111,7 +113,8 @@ class db_big_product_stock {
         } 
         $sql = "select a.id,a.product_state,a.stock_position,a.quantity,a.unit,a.instock_batch_id,"
             ." b.product_id,b.product_name,b.product_model,b.product_made,b.product_tags,a.b_no  "
-            ." from ying_big_product_stock a inner join ying_product b  "
+            ." from " . constant("TABLE_PREFIX") . "big_product_stock a inner join " 
+            . constant("TABLE_PREFIX") . "product b  "
             ." on a.product_id = b.product_id  "
             . $where
             ." order by b.product_name,b.product_model,b.product_made "

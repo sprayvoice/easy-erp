@@ -29,6 +29,10 @@ if ($action == 'list_company') {
     $log_batch_id = $cls_log->get_batch_id();
     $log_info = array('page_name'=>$page_name,'action_name'=>$action,'user_id'=>$_COOKIE["user_id"],'log_batch_id'=>$log_batch_id);   
     $result = $cls_instock->get_in_company_filter($filter1,$log_info);
+
+    if(!$result){
+        return;
+    }
     $row_data = $db->fetch_assoc($result);
     $ret = "<table style='width:6000px;'>";
     $c = 0;
@@ -50,6 +54,9 @@ if ($action == 'get_instock') {
     $log_batch_id = $cls_log->get_batch_id();
     $log_info = array('page_name'=>$page_name,'action_name'=>$action,'user_id'=>$_COOKIE["user_id"],'log_batch_id'=>$log_batch_id);   
     $result = $cls_instock->show_instock($batch_id,$log_info);
+    if(!$result){
+        return;
+    }
     $row_data = $db->fetch_assoc($result);
     if ($row_data != null) {
         $ret = json_encode($row_data);
@@ -61,6 +68,9 @@ if ($action == 'get_instock') {
     $log_batch_id = $cls_log->get_batch_id();
     $log_info = array('page_name'=>$page_name,'action_name'=>$action,'user_id'=>$_COOKIE["user_id"],'log_batch_id'=>$log_batch_id);   
     $result = $cls_instock->show_detail($batch_id,$log_info);
+    if(!$result){
+        return;
+    }
     $list = array();
     $row_data = $db->fetch_assoc($result);
     while ($row_data != null) {
@@ -189,6 +199,9 @@ if ($action == 'get_instock') {
     $total=$total_2[0];
     $total_money = $total_2[1];
     $result = $cls_instock->list_instock($page_id, $page_size, $client_name, $filter, $start_time, $end_time,$log_info);
+    if(!$result){
+        return;
+    }
     $row_data = $db->fetch_assoc($result);
     echo "<table class='table table-bordered table-striped table-hover'>";
     echo "<thead>";

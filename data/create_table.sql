@@ -6,10 +6,10 @@ CREATE TABLE `$prefix_admin` (
   `user_pass` varbinary(200) default NULL,
   `user_email` varchar(60) default NULL,
   `add_time` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
-  `last_login` timestamp NOT NULL default '0000-00-00 00:00:00',
+  `last_login` timestamp ,
   `last_ip` varchar(15) default NULL,
   PRIMARY KEY  (`user_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8mb4;
 
 
 DROP TABLE IF EXISTS `$prefix_admin_login`;
@@ -19,7 +19,7 @@ CREATE TABLE `$prefix_admin_login` (
   `time_for_login` varchar(50) NOT NULL default '',
   `try_time` int(11) default NULL,
   PRIMARY KEY  (`ip`,`time_for_login`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `$prefix_client`;
 
@@ -33,7 +33,7 @@ CREATE TABLE `$prefix_client` (
   `add_time` timestamp NULL default NULL,
   `remark` varchar(300) default NULL,
   PRIMARY KEY  (`client_no`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `$prefix_instock`;
 
@@ -46,7 +46,7 @@ CREATE TABLE `$prefix_instock` (
   `remark` varchar(300) default NULL,
   `summary` varchar(300) default NULL,
   PRIMARY KEY  (`in_batch_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `$prefix_instock_detail`;
 
@@ -63,7 +63,7 @@ CREATE TABLE `$prefix_instock_detail` (
   `add_time` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
   `remark` varchar(200) default NULL,
   PRIMARY KEY  (`detail_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `$prefix_product`;
 
@@ -81,7 +81,7 @@ CREATE TABLE `$prefix_product` (
   `is_include_component` INT(1),
   `is_not_used` INT(1),
   PRIMARY KEY  (`product_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `$prefix_product_price`;
 
@@ -93,7 +93,7 @@ CREATE TABLE `$prefix_product_price` (
   `unit` varchar(20) NOT NULL,
   `is_hide` int(11) default NULL,
   PRIMARY KEY  (`price_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `$prefix_product_tag`;
 
@@ -101,7 +101,7 @@ CREATE TABLE `$prefix_product_tag` (
   `product_id` int(11) NOT NULL default '0',
   `tag_id` int(11) NOT NULL default '0',
   PRIMARY KEY  (`product_id`,`tag_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `$prefix_py`;
 
@@ -111,7 +111,7 @@ CREATE TABLE `$prefix_py` (
   `pym` varchar(50) default NULL,
   PRIMARY KEY  (`id`),
   KEY `index_pym` (`pym`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `$prefix_sales`;
 
@@ -125,7 +125,7 @@ CREATE TABLE `$prefix_sales` (
   `summary` varchar(500) default NULL, 
   `sales_money_real` decimal(18,2) default NULL,
   PRIMARY KEY  (`batch_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `$prefix_sales_detail`;
 
@@ -143,7 +143,7 @@ CREATE TABLE `$prefix_sales_detail` (
   `remark` varchar(50) default NULL,
   `sales_money_real` decimal(9,2) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `$prefix_stock`;
 
@@ -160,7 +160,7 @@ CREATE TABLE `$prefix_stock` (
   `low_quantity` decimal(18,2) default 0,
   `remark` varchar(500) default NULL,
   PRIMARY KEY  (`product_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `$prefix_tag`;
 
@@ -168,7 +168,7 @@ CREATE TABLE `$prefix_tag` (
   `tag_id` int(11) default NULL,
   `tag_name` varchar(50) NOT NULL default '',
   PRIMARY KEY  (`tag_name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `$prefix_product_unit`;
 
@@ -178,7 +178,7 @@ CREATE TABLE `$prefix_product_unit`(
 `unit_quantity` DECIMAL(18,2),
 `unit_sort` INT(2),
 PRIMARY KEY(`product_id`,`unit_name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `$prefix_product_component`;
 
@@ -187,7 +187,7 @@ CREATE TABLE `$prefix_product_component`(
 `component_product_id` INT,
 `component_product_quantity` DECIMAL(18,2),
 PRIMARY KEY(`master_product_id`,`component_product_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `$prefix_log`;
 
@@ -201,13 +201,15 @@ create table `$prefix_log`(
 `execute_result` varchar(50),
 `add_date` timestamp,
 `add_user` varchar(100),
-primary key(`log_id`)) DEFAULT CHARSET=utf8;
+primary key(`log_id`)
+) DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `$prefix_log_batch`;
 
 create table `$prefix_log_batch`(
 `log_batch_id` bigint auto_increment,
-primary key(`log_batch_id`));
+primary key(`log_batch_id`)
+);
 
 DROP TABLE IF EXISTS `$prefix_stock_detail`;
 
@@ -340,5 +342,5 @@ sort_order int,
 primary key(id)
 );
 
-
+insert into 
 
