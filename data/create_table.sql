@@ -342,5 +342,13 @@ sort_order int,
 primary key(id)
 );
 
-insert into 
+
+DROP TABLE IF EXISTS `$prefix_basic_info`;
+
+create table $prefix_basic_info(
+id int  auto_increment,
+key_name varchar(100),
+key_value varchar(200),
+primary key(id)
+);
 
