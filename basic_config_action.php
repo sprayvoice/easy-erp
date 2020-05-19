@@ -1,5 +1,6 @@
 <?php
 
+ini_set("display_errors", "On");
 
 require_once ( 'data/config.php');
 
@@ -51,13 +52,16 @@ if ($action == 'get_info') {
         }
 
 
-        $list = array('company_name1'=>$company_name1,'company_name2'=>$company_name2,'company_name3'=>$company_name3,
+        $list1 = array('company_name1'=>$company_name1,'company_name2'=>$company_name2,
+        'company_name3'=>$company_name3,
            'company_addr'=>$company_addr, 'company_phone'=>$company_phone);
         
 
-        $ret = json_encode($list);
+        $ret1 = json_encode($list1);
 
-        echo $ret;
+        
+
+        echo $ret1;
 
         return;
     }

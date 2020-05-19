@@ -45,7 +45,7 @@ if (isset($_COOKIE["login_true"]) == false) {
 
 
             $(document).ready(function () {
-                get_info();
+                get_info1();
                 $.each($('.nav li'), function (name, value) {
                     $(this).click(function () {
                         var len = $('.nav li').length;
@@ -60,19 +60,23 @@ if (isset($_COOKIE["login_true"]) == false) {
 
          
 
-            function get_info() {
-                $.getJSON('basic_config_action.php?action=get_info',
-                        {r: Math.random()},
-                        function (data) {
-                            console.log(data);
-                            $('#company_name1').val(data.company_name1);
-                            $('#company_name2').val(data.company_name2);
-                            $('#company_name3').val(data.company_name3);
-                            $('#company_addr').val(data.company_addr);
-                            $('#company_phone').val(data.company_phone);                            
+            function get_info1() {
+
+                console.log('test1');
+                $.get('basic_config_action.php?action=get_info',
+                    {r: Math.random()},
+                    function (data) {
+                        console.log('test2');
+                        
+                        $('#company_name1').val(data.company_name1);
+                        $('#company_name2').val(data.company_name2);
+                        $('#company_name3').val(data.company_name3);
+                        $('#company_addr').val(data.company_addr);
+                        $('#company_phone').val(data.company_phone);                            
 
 
-                        });
+                    },'JSON');
+                    
             }
           
             function save_info() {
@@ -92,7 +96,7 @@ if (isset($_COOKIE["login_true"]) == false) {
                             } else {
                                 $('#info').html('');
                             }
-                          get_info();
+                          get_info1();
                         });
             }
             

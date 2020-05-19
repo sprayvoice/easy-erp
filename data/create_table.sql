@@ -254,6 +254,7 @@ c_id bigint auto_increment,
 c_id_parent bigint ,
 c_sort int,
 c_name varchar(100),
+c_pic varchar(200),
 primary key(c_id)
 );
 

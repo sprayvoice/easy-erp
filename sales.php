@@ -48,7 +48,28 @@ if (isset($_COOKIE["login_true"]) == false) {
         	var dd = '<?php echo date("d") ?>';
         
 
-           
+            
+        
+           function get_sales_company(){
+            console.log('test1');
+               $.getJSON('basic_config_action.php?action=get_info',{r:Math.random()},function(data){
+                console.log(data);
+                   
+                console.log(data);
+                    var html = '';
+                    if(data.company_name1!=''){
+                        html += '<option value="'+data.company_name1+'">'+data.company_name1+'</option>';                        
+                    }
+                    if(data.company_name2!=''){
+                        html += '<option value="'+data.company_name2+'">'+data.company_name2+'</option>';                        
+                    }
+                    if(data.company_name3!=''){
+                        html += '<option value="'+data.company_name3+'">'+data.company_name3+'</option>';                        
+                    }
+                    html += '<option value="其他">其他</option>';
+                    $('#print_company').html(html);
+               });
+           }
 
 
             function unbind_name_gg() {
@@ -154,6 +175,7 @@ if (isset($_COOKIE["login_true"]) == false) {
                 bind_change();
                 bind_name_gg();
                 add_init();
+                get_sales_company();
 
                 $.each($('.nav li'), function (name, value) {
                     $(this).click(function () {
@@ -474,7 +496,7 @@ if (isset($_COOKIE["login_true"]) == false) {
             }
 
             function change_print_company(){
-                if($('#print_company').val()=='4'){
+                if($('#print_company').val()=='其他'){
                     $('#txt_other_company').show();
                 } else {
                     $('#txt_other_company').hide();
@@ -803,10 +825,7 @@ if (isset($_COOKIE["login_true"]) == false) {
             <div id='oLayer_contentP' style='padding-left:50px;padding-top:50px;'>
             选择单位： 
                 <select id='print_company' onchange='change_print_company()'>
-                    <option value='1'>渔舜五金</option>
-                    <option value='2'>万红五金</option>
-                    <option value='3'>朗歌五金</option>
-                    <option value='4'>其他</option>
+               
                 </select>
                 <input type='text' id='txt_other_company' style='display:none;' />
                 <input type='hidden' id='hid_batch_id0' value='' />
